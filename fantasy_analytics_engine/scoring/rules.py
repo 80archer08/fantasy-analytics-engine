@@ -17,13 +17,11 @@ def hitter_game_points(row: HitterGameStat, weights: ScoringWeights) -> float:
         + row.bb * weights.hitter_bb
         + row.k * weights.hitter_k
     )
-
-
+    
 def pitcher_game_points(row: PitcherGameStat, weights: ScoringWeights) -> float:
-    """Compute pitcher fantasy points for one game."""
-    innings_pitched = row.ip_outs / 3.0
+    ip = row.ip_outs / 3.0
     return (
-        innings_pitched * weights.ip
+        ip * weights.ip
         + row.qs * weights.qs
         + row.hd * weights.hd
         + row.sv * weights.sv
