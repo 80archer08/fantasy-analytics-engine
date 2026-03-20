@@ -1,11 +1,16 @@
-"""TODO: implement module."""
-from fantasy_analytics_engine.domain.models import HitterGameStat, PitcherGameStat
-from fantasy_analytics_engine.config import ScoringWeights
+"""Scoring rules for ESPN H2H points leagues."""
 
-def hitter_game_points(row: HitterGameStat, wieghts: ScoringWeights) -> float:
-    tb = row.singles + (2 * row.doubles) + (3 * row.triples) + (4 * row.hr)
+from __future__ import annotations
+
+from fantasy_analytics_engine.config import ScoringWeights
+from fantasy_analytics_engine.domain.models import HitterGameStat, PitcherGameStat
+
+
+def hitter_game_points(row: HitterGameStat, weights: ScoringWeights) -> float:
+    """Compute hitter fantasy points for one game."""
+    total_bases = row.singles + (2 * row.doubles) + (3 * row.triples) + (4 * row.hr)
     return (
-        tb * weights.tb
+        total_bases * weights.tb
         + row.runs * weights.runs
         + row.rbi * weights.rbi
         + row.sb * weights.sb
