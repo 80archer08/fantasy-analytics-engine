@@ -117,4 +117,57 @@ CREATE TABLE IF NOT EXISTS player_vor (
 CREATE INDEX IF NOT EXISTS idx_player_vor_lookup
     ON player_vor (league_size, as_of_date, vor DESC);
 
+
+-- Backfill-oriented per-game identity tables (2024 season pipeline).
+CREATE TABLE IF NOT EXISTS games (
+    game_id BIGINT PRIMARY KEY,
+    season INTEGER NOT NULL,
+    game_date DATE NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_games_game_date
+    ON games (game_date);
+
+CREATE TABLE IF NOT EXISTS player_game_batting_stats (
+    player_id TEXT NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    game_id BIGINT NOT NULL REFERENCES games(game_id) ON DELETE CASCADE,
+    at_bats INTEGER NOT NULL DEFAULT 0,
+    hits INTEGER NOT NULL DEFAULT 0,
+    home_runs INTEGER NOT NULL DEFAULT 0,
+    runs INTEGER NOT NULL DEFAULT 0,
+    rbi INTEGER NOT NULL DEFAULT 0,
+    walks INTEGER NOT NULL DEFAULT 0,
+    strikeouts INTEGER NOT NULL DEFAULT 0,
+    stolen_bases INTEGER NOT NULL DEFAULT 0,
+    total_bases INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (player_id, game_id)
+);
+
+CREATE TABLE IF NOT EXISTS player_game_pitching_stats (
+    player_id TEXT NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    game_id BIGINT NOT NULL REFERENCES games(game_id) ON DELETE CASCADE,
+    innings_pitched TEXT NOT NULL DEFAULT '0',
+    strikeouts INTEGER NOT NULL DEFAULT 0,
+    walks INTEGER NOT NULL DEFAULT 0,
+    hits_allowed INTEGER NOT NULL DEFAULT 0,
+    earned_runs INTEGER NOT NULL DEFAULT 0,
+    saves INTEGER NOT NULL DEFAULT 0,
+    holds INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (player_id, game_id)
+);
+
+CREATE TABLE IF NOT EXISTS player_game_fantasy_points (
+    player_id TEXT NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    game_id BIGINT NOT NULL REFERENCES games(game_id) ON DELETE CASCADE,
+    fantasy_points NUMERIC(10, 3) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (player_id, game_id)
+);
+
 COMMIT;
